@@ -54,27 +54,109 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-/* Static headers */
+/* ===== Static headers ===== */
 .fields-header {
-  color: #0f4724 !important; /* green */
-  font-weight: bold;
+  color: #0b3d2e !important;      
+  font-weight: 700;
+  font-size: 1.3em;
+  font-family: "Inter", "Roboto", "Fira Sans", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
+
 .instructions-header {
-  color: #2e135e !important; /* purple */
-  font-weight: bold;
+  color: #3d1a78 !important;
+  font-weight: 700;
+  font-size: 1.3em;
+  font-family: "Inter", "Roboto", "Fira Sans", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Background colors */
-.fields-bg {
-  background-color: #c9f0d7; /* light green */
+/* ==========================
+   Orchestrator Editor Styles
+   ========================== */
+
+/* ===== Headers ===== */
+.fields-header,
+.instructions-header {
+  font-weight: 700;
+  font-size: 1.3em;
+  font-family: "Inter", "Roboto", "Fira Sans", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-left: 10px;      /* aligns with block backgrounds */
+  box-sizing: border-box;
 }
+
+.fields-header { color: #0b3d2e !important; }
+.instructions-header { color: #3d1a78 !important; }
+
+/* ===== Block backgrounds ===== */
+.fields-bg,
 .instructions-bg {
-  background-color: #b8afd8; /* light purple */
+  border-left: 4px solid;
+  border-radius: 4px;
+  padding-left: 10px;      /* fixes clipped first char + alignment */
+  box-sizing: border-box;
+  margin: 2px 0;           /* subtle spacing between blocks */
 }
 
-/* Validated instructions */
-.validated-instr { color: green !important; font-weight: bold; }
-.invalid-instr { color: red !important; font-weight: bold; }
+.fields-bg {
+  background-color: rgba(201, 240, 215, 0.3);
+  border-left-color: #0b3d2e;
+}
+
+.instructions-bg {
+  background-color: rgba(184, 175, 216, 0.3);
+  border-left-color: #3d1a78;
+}
+
+/* ===== Subfields (inside Fields block) ===== */
+.subfield {
+  font-style: italic;
+  font-weight: 500;
+  color: #333;
+  background-color: transparent;
+  padding-left: 2px;      /* slight indentation */
+  box-sizing: border-box;
+}
+
+/* ===== MCP Procedures (inside Instructions block) ===== */
+.procedure-verified,
+.procedure-rejected {
+  font-weight: 600;
+  font-style: normal;
+  padding-left: 10px;     /* align with instructions block */
+  border-left: 2px solid;
+  border-radius: 3px;
+  box-sizing: border-box;
+  margin: 1px 0;          /* subtle spacing */
+}
+
+.procedure-verified {
+  color: #16a34a !important;                    /* green */
+  background-color: rgba(22, 163, 74, 0.1);     /* soft green highlight */
+  border-left-color: #16a34a;
+}
+
+.procedure-rejected {
+  color: #dc2626 !important;                    /* red */
+  background-color: rgba(220, 38, 38, 0.1);     /* soft red highlight */
+  border-left-color: #dc2626;
+}
+
+/* ===== End-of-block lines ===== */
+.end-of-block {
+  font-style: italic;
+  color: #eeeaea;
+  background-color: rgba(255, 255, 255, 0.05);
+  padding-left: 10px;       /* align with block + procedures */
+  border-left: 2px dashed #999;
+  border-radius: 2px;
+  box-sizing: border-box;
+  margin: 2px 0;
+}
 
 @media (prefers-color-scheme: light) {
   :root {

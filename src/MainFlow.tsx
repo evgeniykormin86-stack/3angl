@@ -11,7 +11,8 @@ const initialOrchestratorCode = `
 -f-
 
 % Instructions
-*
+*procedure|
+*procedure1|
 -i-
 
 >>>
@@ -32,7 +33,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen p-4 bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">DSL Editor App</h1>
+      <h1 className="text-2xl font-bold mb-4">IDE:3angl</h1>
 
       {/* Toggle buttons */}
       <div className="flex gap-2 mb-4">
