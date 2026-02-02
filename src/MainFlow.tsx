@@ -70,20 +70,29 @@ export default function App() {
   /** Setup Monaco theme & language */
   const handleBeforeMount = (monaco: typeof import("monaco-editor")) => {
     window.monaco = monaco;
+monaco.languages.setMonarchTokensProvider("3angle", {
+  tokenizer: {
+    root: [
+      [/^% Fields$/, "fields-header"],
+      [/^% Instructions$/, "instructions-header"],
+      [/<[^>]+>/, "subfield"], // subfields
+      [/.+/, "normal"],         // default
+    ],
+  },
+});
 
-    monaco.languages.register({ id: "3angle" });
-    monaco.languages.setMonarchTokensProvider("3angle", {
-      tokenizer: { root: [[/.+/, "normal"]] },
-    });
-
-    monaco.editor.defineTheme("3angleTheme", {
-      base: "vs",
-      inherit: true,
-      rules: [{ token: "normal", foreground: "000000" }],
-      colors: { "editor.background": "#f9fafb" },
-    });
-  };
-
+monaco.editor.defineTheme("3angleTheme", {
+  base: "vs",
+  inherit: true,
+  rules: [
+    { token: "fields-header", foreground: "16a34a", fontStyle: "bold" },      // green font
+    { token: "instructions-header", foreground: "7c3aed", fontStyle: "bold" }, // purple font
+    { token: "subfield", foreground: "000000" },                               // black font, no bg
+    { token: "normal", foreground: "000000" },
+  ],
+  colors: { "editor.background": "#f9fafb" },
+});
+  }
   return (
     <div className="flex flex-col h-screen w-screen p-4 bg-gray-100">
       <h1 className="text-2xl font-bold mb-4">DSL Editor App</h1>

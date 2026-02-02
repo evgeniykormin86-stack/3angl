@@ -54,24 +54,15 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-.active-fields-bg {
-  background-color: rgba(119, 250, 119, 0.35);
-}
+/* Block backgrounds only */
+.active-fields-bg { background-color: #166ddf; }       /* light-blue */
+.active-instructions-bg { background-color: #11bd75; } /* light-light blue */
+/* Subfields get NO background */
+.active-subfield-bg { background-color: transparent; }
 
-.active-subfield-bg {
-  background-color: rgba(6, 150, 49, 0.5);
-  font-weight: bold;
-}
-
-.active-instructions-bg {
-  background-color: rgba(66, 31, 194, 0.5);
-}
-
-.instruction-text {
-  color: blue;
-  font-weight: bold;
-}
-
+/* Validated instructions override font color */
+.validated-instr { color: green !important; font-weight: bold; }
+.invalid-instr { color: red !important; font-weight: bold; }
 
 @media (prefers-color-scheme: light) {
   :root {
