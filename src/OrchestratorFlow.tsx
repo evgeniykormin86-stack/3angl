@@ -1,91 +1,104 @@
 import { useRef } from "react";
 import Editor from "@monaco-editor/react";
-import * as monaco from "monaco-editor";
-import { findActiveRanges, extractBetweenChars } from "./ActiveRanges";
-import type { ActiveBlock } from "./ActiveRanges";
+import { monaco, setupMonaco } from "./MonacoSetup";
 import "./index.css";
 
-const initialOrchestratorCode = `
-Start
-% Fields
-IoT, LLM <subfield1> <subfield2>
+interface OrchestratorFlowProps {
+  code: string;
+  onChange: (value: string) => void;
+}
 
-% Instructions
-*mcp-server1::2026-Feb-1 -> PG('table1')|
-*execute-task something|
-*unknown-task|
-
-End
-`;
-
-export default function OrchestratorFlow() {
+export default function OrchestratorFlow({ code, onChange }: OrchestratorFlowProps) {
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const decorationIdsRef = useRef<string[]>([]);
 
-  const handleBeforeMount = (monaco: typeof import("monaco-editor")) => {
-    monaco.languages.register({ id: "3angle" });
-    monaco.languages.setMonarchTokensProvider("3angle", {
-      tokenizer: { root: [[/.+/, "normal"]] },
+  // Initialize language + theme once
+  setupMonaco();
+
+  const applyDecorations = (editor: monaco.editor.IStandaloneCodeEditor) => {
+    const model = editor.getModel();
+    if (!model) return;
+
+    const decorations: monaco.editor.IModelDeltaDecoration[] = [];
+    const lines = model.getLinesContent();
+
+    let currentBlock: "fields" | "instructions" | null = null;
+    let blockStart = 0;
+
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+
+      // Block start
+      if (trimmed === "% Fields") {
+        currentBlock = "fields";
+        blockStart = idx;
+        decorations.push({
+          range: new monaco.Range(idx + 1, 1, idx + 1, line.length + 1),
+          options: { inlineClassName: "fields-header" },
+        });
+        return;
+      }
+      if (trimmed === "% Instructions") {
+        currentBlock = "instructions";
+        blockStart = idx;
+        decorations.push({
+          range: new monaco.Range(idx + 1, 1, idx + 1, line.length + 1),
+          options: { inlineClassName: "instructions-header" },
+        });
+        return;
+      }
+
+      // Block end markers
+      if ((currentBlock === "fields" && trimmed === "-f-") ||
+          (currentBlock === "instructions" && trimmed === "-i-")) {
+        // decorate all lines in the block including end marker
+        for (let i = blockStart + 1; i <= idx; i++) {
+          decorations.push({
+            range: new monaco.Range(i + 1, 1, i + 1, lines[i].length + 1),
+            options: { isWholeLine: true, className: currentBlock === "fields" ? "fields-bg" : "instructions-bg" },
+          });
+        }
+        currentBlock = null;
+        return;
+      }
+
+      // Subfield inline decorations
+      if (currentBlock === "fields") {
+        const regex = /<([^>]+)>/g;
+        let match;
+        while ((match = regex.exec(line))) {
+          decorations.push({
+            range: new monaco.Range(idx + 1, match.index + 1, idx + 1, match.index + match[0].length + 1),
+            options: { inlineClassName: "subfield" },
+          });
+        }
+      }
     });
 
-    monaco.editor.defineTheme("3angleTheme", {
-      base: "vs",
-      inherit: true,
-      rules: [{ token: "normal", foreground: "000000" }],
-      colors: { "editor.background": "#f9fafb" },
-    });
+    decorationIdsRef.current = editor.deltaDecorations(
+      decorationIdsRef.current,
+      decorations
+    );
   };
 
-const applyDecorations = (editor: monaco.editor.IStandaloneCodeEditor) => {
-  const model = editor.getModel();
-  if (!model) return;
-
-  const blocks: ActiveBlock[] = findActiveRanges(model, monaco);
-  const instructions = extractBetweenChars(model, "*", "|");
-
-  const newDecorations: monaco.editor.IModelDeltaDecoration[] = [
-    // Block backgrounds — only for fields & instructions, skip subfields
-    ...blocks
-      .filter(b => b.type === "fields" || b.type === "instructions")
-      .map((block) => ({
-        range: block.range,
-        options: { inlineClassName: block.type === "fields" ? "active-fields-bg" : "active-instructions-bg" },
-      })),
-
-    // Validated instructions — override font color
-    ...instructions.map((instr) => ({
-      range: new monaco.Range(instr.line, 1, instr.line, instr.text.length + 1),
-      options: {
-        inlineClassName: instr.is_validated ? "validated-instr" : "invalid-instr",
-      },
-    })),
-  ];
-
-  decorationIdsRef.current = editor.deltaDecorations(decorationIdsRef.current, newDecorations);
-};
-
   return (
-<Editor
-  defaultValue={initialOrchestratorCode}
-  height="100vh"
-  defaultLanguage="3angle"
-  theme="3angleTheme"
-  beforeMount={handleBeforeMount}
-  onMount={(editor) => {
-    editorRef.current = editor;
-    applyDecorations(editor);
-
-    // Live updates for validated instructions
-    editor.onDidChangeModelContent(() => applyDecorations(editor));
-  }}
-  options={{
-    fontSize: 14,
-    wordWrap: "on",
-    lineNumbers: "on",
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false,
-  }}
-/>
+    <Editor
+      height="100%"
+      defaultLanguage="3angle"
+      theme="3angleTheme"
+      value={code}
+      onChange={(v) => onChange(v || "")}
+      onMount={(editor) => {
+        editorRef.current = editor;
+        applyDecorations(editor);
+        editor.onDidChangeModelContent(() => applyDecorations(editor));
+      }}
+      options={{
+        fontSize: 14,
+        wordWrap: "on",
+        lineNumbers: "on",
+        automaticLayout: true,
+      }}
+    />
   );
 }
