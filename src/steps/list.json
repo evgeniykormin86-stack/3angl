@@ -1,0 +1,37 @@
+{
+  "agentName": "SampleAgent",
+  "steps": [
+    {
+      "id": "step1",
+      "name": "FetchData",
+      "input": {
+        "source": "API endpoint",
+        "params": ["userId", "token"]
+      },
+      "output": {
+        "data": "JSON response"
+      }
+    },
+    {
+      "id": "step2",
+      "name": "TransformData",
+      "input": {
+        "data": "JSON response from step1"
+      },
+      "output": {
+        "transformedData": "Array of objects"
+      }
+    },
+    {
+      "id": "step3",
+      "name": "SaveToDB",
+      "input": {
+        "records": "Array of objects from step2",
+        "db": "MongoDB collection"
+      },
+      "output": {
+        "status": "Success or Error"
+      }
+    }
+  ]
+}
